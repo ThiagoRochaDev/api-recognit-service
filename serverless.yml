@@ -1,0 +1,27 @@
+
+service: api-recognition-service
+
+provider:
+  name: aws
+  runtime: python3.8
+
+
+functions:
+ upload:
+    handler: handler.upload
+    events:
+    - http:
+        path: /upload
+        method: post
+  download:
+    handler: handler.download
+    events:
+    - http:
+        path: /download
+        method: get
+  delete:
+    handler: handler.delete
+    events:
+    - http:
+        path: /delete
+        method: delete
