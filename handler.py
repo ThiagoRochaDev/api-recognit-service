@@ -4,17 +4,20 @@ import boto3
 
 def upload(event, context):
     s3 = boto3.client('s3')
-    bucket = 'your-bucket-name'
-    file_name = 'location-of-your-file'
-    key_name = 'name-of-file-in-s3'
+    bucket = 'client-image-upload'
+    file_name = event['Records'][0]['s3']['object']['key']
+    key_name = event['Records'][0]['s3']['object']['key']
     s3.upload_file(file_name, bucket, key_name)    
     
 def download(event, context):  
     s3 = boto3.client('s3')
-    s3.download_file('BUCKET_NAME', 'OBJECT_NAME', 'FILE_NAME')
+    file_name = event['Records'][0]['s3']['object']['key']
+    key_name = event['Records'][0]['s3']['object']['key']
+    s3.download_file('client-image-processing', file_name, key_name)
 
 
 
 def delete(event,context):      
     s3 = boto3.client('s3')
-    s3.delete_object(Bucket='mybucketname', Key='myfile.whatever')
+    file_name = event['Records'][0]['s3']['object']['key']
+    s3.delete_object(Bucket='client-image-processing', Key=file_name)
