@@ -1,11 +1,23 @@
 
-service: api-recognition-service
+service: apis-recognition-service
 
+custom:
+  OPENCV_PROCESS_BUCKET: client-image-upload
+  OPENCV_OUTPUT_BUCKET: client-image-processing
 
 provider:
   name: aws
   runtime: python3.8
-  
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+         - 's3:ListBucket'
+         - 's3:GetObject'
+         - 's3:PutObject'
+      Resource:
+        - arn:aws:s3:::${self:custom.OPENCV_OUTPUT_BUCKET}/
+        - arn:aws:s3:::${self:custom.OPENCV_PROCESS_BUCKET}/
+ 
 
 functions:
  upload:
@@ -15,17 +27,33 @@ functions:
         path: /upload
         method: post
     
- download:
-     handler: handler.download
+ download_output:
+     handler: handler.download_output
      events:
      - http:
-         path: /download
+         path: /download_output
          method: get
-    
- delete:
-    handler: handler.delete
+     
+ download_process:
+      handler: handler.download_process
+      events:
+      - http:
+          path: /download_process
+          method: get
+      
+      
+ delete_output:
+    handler: handler.delete_output
     events:
     - http:
-        path: /delete
+        path: /delete_output
         method: delete
-  
+   
+
+   
+delete_process:
+      handler: handler.delete_process
+      events:
+      - http:
+          path: /delete_process
+          method: delete
