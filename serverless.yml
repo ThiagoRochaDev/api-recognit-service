@@ -1,7 +1,4 @@
-
 service: apis-recognition-service
-
-
 
 custom:
   OPENCV_PROCESS_BUCKET: client-image-upload
@@ -19,42 +16,39 @@ provider:
       Resource:
         - arn:aws:s3:::${self:custom.OPENCV_OUTPUT_BUCKET}/
         - arn:aws:s3:::${self:custom.OPENCV_PROCESS_BUCKET}/
- 
 
 functions:
- upload:
-    handler: handler.upload
+ client_upload:
+    handler: handler.client_upload
     events:
     - http:
-        path: /upload
+        path: /client_upload
         method: post
     
- download_output:
-     handler: handler.download_output
+ download_client_upload:
+     handler: handler.download_client_upload
      events:
      - http:
-         path: /download_output
+         path: /download_client_upload
          method: get
      
- download_process:
-      handler: handler.download_process
+ download_recognized:
+      handler: handler.download_recognized
       events:
       - http:
-          path: /download_process
+          path: /download_recognized
           method: get
       
-      
- delete_output:
-    handler: handler.delete_output
+ delete_client_upload:
+    handler: handler.delete_client_upload
     events:
     - http:
-        path: /delete_output
+        path: /delete_client_upload
         method: delete
    
-
    
-delete_process:
-      handler: handler.delete_process
+delete_recognized:
+      handler: handler.delete_recognized
       events:
       - http:
           path: /delete_process
