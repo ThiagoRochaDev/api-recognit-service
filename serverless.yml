@@ -1,6 +1,8 @@
 
 service: apis-recognition-service
 
+
+
 custom:
   OPENCV_PROCESS_BUCKET: client-image-upload
   OPENCV_OUTPUT_BUCKET: client-image-processing

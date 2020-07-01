@@ -1,36 +1,25 @@
 import json
 import boto3
+from botocore.client import Config
+
+s3_client = boto3.client('s3')
+s3_resource = boto3.resource('s3')
+
+bucket_name = 'client-image-processing'
+my_bucket = s3_resource.Bucket(bucket_name)
 
 
+def download_process(event, context):   
+    url = s3_client.generate_presigned_url('get_object',
+                                Params={
+                                    'Bucket': 'client-image-processing',
+                                    'Key': 'destaque36.jpg',
+                                },                                  
+                                ExpiresIn=3600)
 
 
+    return url
 
-def upload(event, context):
-    bucket =  "client-image-upload"
-    file_name = event['Records'][0]['s3']['object']['key']
-    s3.put_object( bucket, file_name, file_name)    
+ 
+
     
-    
-def download_process(event, context):
-    s3 = boto3.client('s3')  
-    bucket =  "client-image-upload"
-    file_name = event['Records'][0]['s3']['object']['key']
-    s3.list_objects(bucket)
-
-def download_output(event, context):  
-    bucket =  "client-image-processing"
-    file_name = event['Records'][0]['s3']['object']['key']
-    s3.get_object(bucket, file_name)
-
-
-
-def delete_process(event,context):      
-    bucket =  "client-image-upload"
-    file_name = event['Records'][0]['s3']['object']['key']
-    s3.delete_object(bucket,file_name)
-
-
-def delete_output(event,context):      
-    bucket =  "client-image-processing"
-    file_name = event['Records'][0]['s3']['object']['key']
-    s3.delete_object(bucket,file_name)
