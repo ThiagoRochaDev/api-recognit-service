@@ -32,11 +32,11 @@ functions:
          path: /download_client_upload
          method: get
      
- download_recognized:
-      handler: handler.download_recognized
+ download_client_recognized:
+      handler: handler.download_client_recognized
       events:
       - http:
-          path: /download_recognized
+          path: /download_client_recognized
           method: get
       
  delete_client_upload:
@@ -47,9 +47,9 @@ functions:
         method: delete
    
    
-delete_recognized:
-      handler: handler.delete_recognized
+delete_client_recognized:
+      handler: handler.delete_client_recognized
       events:
       - http:
-          path: /delete_process
+          path: /delete_client_recognized
           method: delete
