@@ -1,0 +1,66 @@
+
+      - cloudwatchEvent: #cria uma regra de evento no cloudwatch
+          name: 'put_log_dynamodb'
+          event:
+            source:
+              - "aws.s3"
+            detail:
+               eventSource:
+                 - s3.amazonaws.com
+               eventName:
+                 - ListObjects
+                 - ListObjectVersions
+                 - PutObject
+                 - GetObject
+                 - HeadObject
+                 - CopyObject
+                 - GetObjectAcl
+                 - PutObjectAcl
+                 - CreateMultipartUpload
+                 - ListParts
+                 - UploadPart
+                 - CompleteMultipartUpload
+                 - AbortMultipartUpload
+                 - UploadPartCopy
+                 - RestoreObject
+                 - DeleteObject
+                 - DeleteObjects
+                 - GetObjectTorrent
+                 - SelectObjectContent
+                 - PutObjectLockRetention
+                 - PutObjectLockLegalHold
+                 - GetObjectLockRetention
+                 - GetObjectLockLegalHold"
+
+      - cloudwatchEvent: #cria uma regra de evento no cloudwatch
+          name: 'put_log_dynamodb'
+          event:
+            source:
+              - "aws.s3"
+            detail:
+               eventSource:
+                 - s3.amazonaws.com
+               eventName:
+                 - ListObjects
+                 - ListObjectVersions
+                 - PutObject
+                 - GetObject
+                 - HeadObject
+                 - CopyObject
+                 - GetObjectAcl
+                 - PutObjectAcl
+                 - CreateMultipartUpload
+                 - ListParts
+                 - UploadPart
+                 - CompleteMultipartUpload
+                 - AbortMultipartUpload
+                 - UploadPartCopy
+                 - RestoreObject
+                 - DeleteObject
+                 - DeleteObjects
+                 - GetObjectTorrent
+                 - SelectObjectContent
+                 - PutObjectLockRetention
+                 - PutObjectLockLegalHold
+                 - GetObjectLockRetention
+                 - GetObjectLockLegalHold"

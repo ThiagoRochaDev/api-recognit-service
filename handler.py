@@ -1,10 +1,31 @@
 import json
 import boto3
 from botocore.client import Config
+import uuid
 
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
+dynamodb = boto3.resource('dynamodb')
 
+def client_upload(event, context):
+    
+    bucket = event['s3']['bucket']['name']
+    key = unquote_plus(event['Records'][0]['s3']['object']['key'])
+    tmpkey = key.replace('/', '')
+    upload_path = '/tmp/{}'.format(tmpkey)
+    
+    response = s3_client.upload_file(upload_path, bucket, key)
+
+
+    # bucket_name = 'client-image-upload'
+    # my_bucket = s3_resource.Bucket(bucket_name)
+    # file_name = 'teste'
+    # object_name = 'teste.jpg'
+    # response = s3_client.upload_file(file_name, bucket_name, object_name)
+    return {
+        "statusCode": 200,
+        "body": json.dumps(response)
+            }
 
 def download_client_recognized(event, context):
     bucket_name = 'client-image-processing'
@@ -71,7 +92,7 @@ def delete_client_recognized(event, context):
                             Delete={
                                 'Objects': [
                                     {
-                                        'Key': "download.jpg"  
+                                        'Key': "download.jpeg"  
                                     }
                                 ]
                             }
@@ -80,3 +101,24 @@ def delete_client_recognized(event, context):
         "statusCode": 200,
         "body": json.dumps(response)
                 }   
+
+
+def put_log_dynamo(event, context):
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    file_name = event['Records'][0]['s3']['object']['key']
+    
+    print(str(event))
+    print(str(bucket))
+    print(str(file_name))
+    
+    json_object = s3_client.get_object(Bucket=bucket,Key=file_name)
+    id_bd = str(uuid.uuid4())
+    
+    
+    table = dynamodb.Table('Logs')
+    table.put_item(Item={
+        'id': id_bd,
+        'file_name': file_name,
+        'bucket_name': bucket
+        
+    })

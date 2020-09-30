@@ -1,55 +1,128 @@
-service: apis-recognition-service
-
+service: Api-AutoScaling-dynamodb
 custom:
-  OPENCV_PROCESS_BUCKET: client-image-upload
-  OPENCV_OUTPUT_BUCKET: client-image-processing
-
+  OPENCV_PROCESS_BUCKET: image-bucket-upload
+  OPENCV_OUTPUT_BUCKET: image-bucket-recognized
 provider:
   name: aws
   runtime: python3.8
-  iamRoleStatements:
+  iamRoleStatements: # roles de permissões no bucket e dynamodb
     - Effect: Allow
       Action:
-         - 's3:ListBucket'
          - 's3:GetObject'
+         - 's3:ListBucket'
          - 's3:PutObject'
+         - 's3:PutObjectTagging'
+         - dynamodb:DescribeTable
+         - dynamodb:Scan
+         - dynamodb:GetItem
+         - dynamodb:PutItem
+         - dynamodb:UpdateItem
+         - dynamodb:DeleteItem
       Resource:
-        - arn:aws:s3:::${self:custom.OPENCV_OUTPUT_BUCKET}/
-        - arn:aws:s3:::${self:custom.OPENCV_PROCESS_BUCKET}/
-
-functions:
+        - arn:aws:s3:::${self:custom.OPENCV_PROCESS_BUCKET}/*
+        - arn:aws:s3:::${self:custom.OPENCV_OUTPUT_BUCKET}/*
+        - arn:aws:dynamodb:${self:provider.region}:*:table/Logs
+        
+functions: # métodos da api 
  client_upload:
     handler: handler.client_upload
     events:
     - http:
         path: /client_upload
         method: post
-    
  download_client_upload:
      handler: handler.download_client_upload
      events:
      - http:
          path: /download_client_upload
          method: get
-     
  download_client_recognized:
       handler: handler.download_client_recognized
       events:
       - http:
           path: /download_client_recognized
           method: get
-      
  delete_client_upload:
     handler: handler.delete_client_upload
     events:
     - http:
         path: /delete_client_upload
         method: delete
-   
-   
-delete_client_recognized:
-      handler: handler.delete_client_recognized
-      events:
-      - http:
-          path: /delete_client_recognized
-          method: delete
+ delete_client_recognized:
+        handler: handler.delete_client_recognized
+        events:
+        - http:
+            path: /delete_client_recognized
+            method: delete
+ 
+# vincula a função à esses eventos no s3 bucket selecionado
+ put_log_dynamo: 
+    handler: handler.put_log_dynamo
+    events:
+      - s3:
+          bucket: ${self:custom.OPENCV_OUTPUT_BUCKET}
+          events:  
+            - s3:ObjectCreated:*
+            - s3:ObjectRemoved:*
+          existing: true
+
+resources:
+  Resources:
+   # template de criação do autoscaling group
+    ASGappFaceRecognition:
+      Type: AWS::EC2::LaunchTemplate
+      Properties: 
+        LaunchTemplateName: !Sub ASGappFaceRecognition
+        LaunchTemplateData: 
+          BlockDeviceMappings: 
+            - Ebs:
+                VolumeSize: 22
+                VolumeType: gp2
+                DeleteOnTermination: true
+                Encrypted: true
+              DeviceName: /dev/xvdcz
+          CreditSpecification: 
+            CpuCredits: Unlimited
+          ImageId: ami-02354e95b39ca8dec
+          InstanceType: t2.micro
+          Monitoring: 
+            Enabled: true
+    ASGFaceRecognition:
+      Type: AWS::AutoScaling::AutoScalingGroup
+      Properties:
+        AvailabilityZones: !GetAZs ''
+        AutoScalingGroupName: ASG-apps-FaceRecognition
+        MinSize: "1"
+        MaxSize: "6"
+        DesiredCapacity: "2"
+        HealthCheckGracePeriod: 300
+        LaunchTemplate:
+          LaunchTemplateId: !Ref ASGappFaceRecognition
+          Version: !GetAtt ASGappFaceRecognition.LatestVersionNumber
+        MetricsCollection: 
+          - Granularity: "1Minute"
+            Metrics: 
+              - "GroupMinSize"
+              - "GroupMaxSize"
+        Tags:
+          - Key: Environment
+            Value: Production
+            PropagateAtLaunch: "true"
+          - Key: Purpose
+            Value: WebServerGroup
+            PropagateAtLaunch: "false"
+
+    # cria a tabela de log no dynamodb
+    Logs: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Logs
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
