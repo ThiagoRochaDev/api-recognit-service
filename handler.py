@@ -2,6 +2,7 @@ import json
 import boto3
 from botocore.client import Config
 import uuid
+import os
 
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
@@ -28,7 +29,7 @@ def client_upload(event, context):
             }
 
 def download_client_recognized(event, context):
-    bucket_name = 'client-image-processing'
+    bucket_name = 'image-bucket-recognized'
     my_bucket = s3_resource.Bucket(bucket_name)
     file_array = []    
     for files in my_bucket.objects.all():
@@ -46,7 +47,7 @@ def download_client_recognized(event, context):
     }
 
 def download_client_upload(event, context):
-    bucket_name = 'client-image-upload'
+    bucket_name =  'image-bucket-upload'
     my_bucket = s3_resource.Bucket(bucket_name)
     file_array = []    
     for files in my_bucket.objects.all():
@@ -67,7 +68,7 @@ def download_client_upload(event, context):
  
 
 def delete_client_upload(event, context):  
-        bucket_name = 'client-image-upload'
+        bucket_name =  'image-bucket-upload'
         my_bucket = s3_resource.Bucket(bucket_name)
         response = my_bucket.delete_objects(
                             Delete={
@@ -86,7 +87,7 @@ def delete_client_upload(event, context):
 
 
 def delete_client_recognized(event, context):  
-        bucket_name = 'client-image-processing'
+        bucket_name = 'image-bucket-recognized'
         my_bucket = s3_resource.Bucket(bucket_name)
         response = my_bucket.delete_objects(
                             Delete={

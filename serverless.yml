@@ -22,6 +22,8 @@ provider:
         - arn:aws:s3:::${self:custom.OPENCV_PROCESS_BUCKET}/*
         - arn:aws:s3:::${self:custom.OPENCV_OUTPUT_BUCKET}/*
         - arn:aws:dynamodb:${self:provider.region}:*:table/Logs
+        - arn:aws:s3:::*
+        - arn:aws:s3:::*/*
         
 functions: # métodos da api 
  client_upload:
@@ -36,6 +38,7 @@ functions: # métodos da api
      - http:
          path: /download_client_upload
          method: get
+
  download_client_recognized:
       handler: handler.download_client_recognized
       events:
