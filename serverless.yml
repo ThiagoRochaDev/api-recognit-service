@@ -12,6 +12,7 @@ provider:
          - 's3:ListBucket'
          - 's3:PutObject'
          - 's3:PutObjectTagging'
+         - 's3:*'
          - dynamodb:DescribeTable
          - dynamodb:Scan
          - dynamodb:GetItem
@@ -51,12 +52,12 @@ functions: # métodos da api
     - http:
         path: /delete_client_upload
         method: delete
- delete_client_recognized:
-        handler: handler.delete_client_recognized
-        events:
-        - http:
-            path: /delete_client_recognized
-            method: delete
+#  delete_client_recognized:
+#         handler: handler.delete_client_recognized
+#         events:
+#         - http:
+#             path: /delete_client_recognized
+#             method: delete
  
 # vincula a função à esses eventos no s3 bucket selecionado
  put_log_dynamo: 
