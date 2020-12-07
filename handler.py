@@ -34,14 +34,18 @@ def client_upload(event, context):
 def download_client_recognized(event, context):
     bucket_name = 'image-bucket-recognized'
     my_bucket = s3_resource.Bucket(bucket_name)
+
+    client = event['pathParameters']['client']
     file_array = []
     count = 0
     for files in my_bucket.objects.all():
-            count+= 1    
+            count+= 1   
+            arr = files.key
+            folder = arr.split("/")
             url = s3_client.generate_presigned_url('get_object',
                                     Params={
                                         'Bucket': bucket_name,
-                                        'Key': files.key,
+                                        'Key': client + "/" + folder[1] ,
                                     },                                  
                                     ExpiresIn=3600)
             file_array.append({
@@ -63,12 +67,17 @@ def download_client_recognized(event, context):
 def download_client_upload(event, context):
     bucket_name =  'image-bucket-upload'
     my_bucket = s3_resource.Bucket(bucket_name)
+
+    client = event['pathParameters']['client']
     file_array = []    
     for files in my_bucket.objects.all():
+        count+= 1 
+        arr = files.key
+        folder = arr.split("/")
         url = s3_client.generate_presigned_url('get_object',
                                 Params={
                                     'Bucket': bucket_name,
-                                    'Key': files.key,
+                                    'Key': client + "/" + folder[1],
                                 },                                  
                                 ExpiresIn=3600)
         file_array.append(url)
@@ -85,12 +94,14 @@ def download_client_upload(event, context):
 def delete_client_upload(event, context):  
         bucket_name =  event['bucket']
         file_name = event['filename']
+        client = event['pathParameters']['client']
+        file = event['pathParameters']['file']
         my_bucket = s3_resource.Bucket(bucket_name)
         response = my_bucket.delete_objects(
                             Delete={
                                 'Objects': [
                                     {
-                                        'Key': file_name  
+                                        'Key': client+"/"+file  
                                     }
                                 ]
                             }
@@ -104,23 +115,7 @@ def delete_client_upload(event, context):
         "body": json.dumps(response)
                 }   
 
-# def delete_client_recognized(event, context):  
-#         bucket_name =  event['bucket']
-#         file_name = event['filename']
-#         my_bucket = s3_resource.Bucket(bucket_name)
-#         response = my_bucket.delete_objects(
-#                             Delete={
-#                                 'Objects': [
-#                                     {
-#                                         'Key': file_name 
-#                                     }
-#                                 ]
-#                             }
-#                         )
-#         return {
-#         "statusCode": 200,
-#         "body": json.dumps(response)
-#                 }   
+
 
 
 def put_log_dynamo(event, context):

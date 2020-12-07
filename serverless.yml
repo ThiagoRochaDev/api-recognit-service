@@ -37,20 +37,20 @@ functions: # métodos da api
      handler: handler.download_client_upload
      events:
      - http:
-         path: /download_client_upload
+         path: /download_client_upload/{client}
          method: get
 
  download_client_recognized:
       handler: handler.download_client_recognized
       events:
       - http:
-          path: /download_client_recognized
+          path: /download_client_recognized/{client}
           method: get
  delete_client_upload:
     handler: handler.delete_client_upload
     events:
     - http:
-        path: /delete_client_upload
+        path: /delete_client_upload/{client}/{file}
         method: delete
 #  delete_client_recognized:
 #         handler: handler.delete_client_recognized
