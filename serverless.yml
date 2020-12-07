@@ -31,7 +31,7 @@ functions: # métodos da api
     handler: handler.client_upload
     events:
     - http:
-        path: /client_upload
+        path: /client_upload/{file}/{client}
         method: post
  download_client_upload:
      handler: handler.download_client_upload
