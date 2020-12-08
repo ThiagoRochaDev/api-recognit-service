@@ -69,7 +69,8 @@ def download_client_upload(event, context):
     my_bucket = s3_resource.Bucket(bucket_name)
 
     client = event['pathParameters']['client']
-    file_array = []    
+    file_array = []  
+    count = 0  
     for files in my_bucket.objects.all():
         count+= 1 
         arr = files.key
