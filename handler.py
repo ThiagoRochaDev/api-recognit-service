@@ -17,7 +17,7 @@ def client_upload(event, context):
         encoded_string = img_bin.encode('utf-8')
         image = base64.b64decode(encoded_string)
         
-        bucket = 'image-bucket-upload'
+        bucket = 'image-bucket-uploads'
         client = event['pathParameters']['client']
         upload_path = '%s/{}'.format(event['pathParameters']['file'] + ".jpeg") % (client)
         response = s3_client.put_object(Key=upload_path,  Bucket=bucket, Body=image)
@@ -31,41 +31,9 @@ def client_upload(event, context):
             "body": json.dumps(response)
                 }
 
-def download_client_recognized(event, context):
-    bucket_name = 'image-bucket-recognized'
-    my_bucket = s3_resource.Bucket(bucket_name)
 
-    client = event['pathParameters']['client']
-    file_array = []
-    count = 0
-    for files in my_bucket.objects.all():
-            count+= 1   
-            arr = files.key
-            folder = arr.split("/")
-            url = s3_client.generate_presigned_url('get_object',
-                                    Params={
-                                        'Bucket': bucket_name,
-                                        'Key': client + "/" + folder[1] ,
-                                    },                                  
-                                    ExpiresIn=3600)
-            file_array.append({
-                        "id": uuid.uuid4().hex,
-                        "type": 'image',
-                        "thumb_url": url,
-                        "name": files.key,
-                        "position":  count  })
-        
-    return {
-        "statusCode": 200,
-        "headers": {
-                "status": "ok",
-                "Access-Control-Allow-Origin": "*"
-                },
-        "body":  json.dumps(file_array)
-    }
-
-def download_client_upload(event, context):
-    bucket_name =  'image-bucket-upload'
+def download_client_images(event, context):
+    bucket_name =  event['pathParameters']['bucket']
     my_bucket = s3_resource.Bucket(bucket_name)
 
     client = event['pathParameters']['client']
@@ -92,9 +60,9 @@ def download_client_upload(event, context):
         "body": json.dumps(file_array)
     }   
  
-def delete_client_upload(event, context):  
-        bucket_name =  event['bucket']
-        file_name = event['filename']
+def delete_client_images(event, context):  
+        bucket_name =  event['pathParameters']['bucket']
+       
         client = event['pathParameters']['client']
         file = event['pathParameters']['file']
         my_bucket = s3_resource.Bucket(bucket_name)

@@ -1,7 +1,7 @@
 service: Api-AutoScaling-dynamodb
 custom:
-  OPENCV_PROCESS_BUCKET: image-bucket-upload
-  OPENCV_OUTPUT_BUCKET: image-bucket-recognized
+  OPENCV_PROCESS_BUCKET: image-bucket-uploads
+  OPENCV_OUTPUT_BUCKET: image-bucket-recognizeds
 provider:
   name: aws
   runtime: python3.8
@@ -31,33 +31,22 @@ functions: # métodos da api
     handler: handler.client_upload
     events:
     - http:
-        path: /client_upload/{file}/{client}
+        path: /client_upload/{client}/{file}
         method: post
- download_client_upload:
-     handler: handler.download_client_upload
+ download_client_images:
+     handler: handler.download_client_images
      events:
      - http:
-         path: /download_client_upload/{client}
+         path: /download_client_images/{bucket}/{client}
          method: get
 
- download_client_recognized:
-      handler: handler.download_client_recognized
-      events:
-      - http:
-          path: /download_client_recognized/{client}
-          method: get
- delete_client_upload:
-    handler: handler.delete_client_upload
+ delete_client_images:
+    handler: handler.delete_client_images
     events:
     - http:
-        path: /delete_client_upload/{client}/{file}
+        path: /delete_client_images/{bucket}/{client}/{file}
         method: delete
-#  delete_client_recognized:
-#         handler: handler.delete_client_recognized
-#         events:
-#         - http:
-#             path: /delete_client_recognized
-#             method: delete
+
  
 # vincula a função à esses eventos no s3 bucket selecionado
  put_log_dynamo: 
