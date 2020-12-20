@@ -18,8 +18,8 @@ def client_upload(event, context):
         image = base64.b64decode(encoded_string)
         
         bucket = 'image-bucket-uploads'
-        client = event['pathParameters']['client']
-        upload_path = '%s/{}'.format(event['pathParameters']['file'] + ".jpeg") % (client)
+        #client = event['pathParameters']['client']
+        upload_path = '{}'.format(event['pathParameters']['file'] + ".jpg")
         response = s3_client.put_object(Key=upload_path,  Bucket=bucket, Body=image)
         
         return {
@@ -36,17 +36,15 @@ def download_client_images(event, context):
     bucket_name =  event['pathParameters']['bucket']
     my_bucket = s3_resource.Bucket(bucket_name)
 
-    client = event['pathParameters']['client']
+    #client = event['pathParameters']['client']
     file_array = []  
     count = 0  
     for files in my_bucket.objects.all():
         count+= 1 
-        arr = files.key
-        folder = arr.split("/")
         url = s3_client.generate_presigned_url('get_object',
                                 Params={
                                     'Bucket': bucket_name,
-                                    'Key': client + "/" + folder[1],
+                                    'Key':  files.key,
                                 },                                  
                                 ExpiresIn=3600)
         file_array.append(url)
@@ -63,14 +61,14 @@ def download_client_images(event, context):
 def delete_client_images(event, context):  
         bucket_name =  event['pathParameters']['bucket']
        
-        client = event['pathParameters']['client']
+       # client = event['pathParameters']['client']
         file = event['pathParameters']['file']
         my_bucket = s3_resource.Bucket(bucket_name)
         response = my_bucket.delete_objects(
                             Delete={
                                 'Objects': [
                                     {
-                                        'Key': client+"/"+file  
+                                        'Key': file  
                                     }
                                 ]
                             }

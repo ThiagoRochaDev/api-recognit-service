@@ -1,7 +1,7 @@
 service: Api-AutoScaling-dynamodb
 custom:
   OPENCV_PROCESS_BUCKET: image-bucket-uploads
-  OPENCV_OUTPUT_BUCKET: image-bucket-recognizeds
+  OPENCV_OUTPUT_BUCKET: image-bucket-recognized
 provider:
   name: aws
   runtime: python3.8
@@ -31,20 +31,20 @@ functions: # métodos da api
     handler: handler.client_upload
     events:
     - http:
-        path: /client_upload/{client}/{file}
+        path: /client_upload/{file}
         method: post
  download_client_images:
      handler: handler.download_client_images
      events:
      - http:
-         path: /download_client_images/{bucket}/{client}
+         path: /download_client_images/{bucket}
          method: get
 
  delete_client_images:
     handler: handler.delete_client_images
     events:
     - http:
-        path: /delete_client_images/{bucket}/{client}/{file}
+        path: /delete_client_images/{bucket}/{file}
         method: delete
 
  
