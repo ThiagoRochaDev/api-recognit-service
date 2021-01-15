@@ -1,0 +1,53 @@
+Resources:
+   # template de criação do autoscaling group
+    ASGappFaceRecognition:
+      Type: AWS::EC2::LaunchTemplate
+      Properties: 
+        LaunchTemplateName: !Sub ASGappFaceRecognition
+        LaunchTemplateData: 
+          BlockDeviceMappings: 
+            - Ebs:
+                VolumeSize: 22
+                VolumeType: gp2
+                DeleteOnTermination: true
+                Encrypted: true
+              DeviceName: /dev/xvdcz
+          CreditSpecification: 
+            CpuCredits: Unlimited
+          ImageId: ami-02354e95b39ca8dec
+          InstanceType: t2.micro
+          Monitoring: 
+            Enabled: true
+    ASGFaceRecognition:
+      Type: AWS::AutoScaling::AutoScalingGroup
+      Properties:
+        AvailabilityZones: !GetAZs ''
+        AutoScalingGroupName: ASG-apps-FaceRecognition
+        MinSize: "1"
+        MaxSize: "6"
+        DesiredCapacity: "2"
+        HealthCheckGracePeriod: 300
+        LaunchTemplate:
+          LaunchTemplateId: !Ref ASGappFaceRecognition
+          Version: !GetAtt ASGappFaceRecognition.LatestVersionNumber
+        MetricsCollection: 
+          - Granularity: "1Minute"
+            Metrics: 
+              - "GroupMinSize"
+              - "GroupMaxSize"
+        Tags:
+          - Key: Environment
+            Value: Production
+            PropagateAtLaunch: "true"
+          - Key: Purpose
+            Value: WebServerGroup
+            PropagateAtLaunch: "false"
+    WebSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Enable HTTP access via user defined port
+        SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80

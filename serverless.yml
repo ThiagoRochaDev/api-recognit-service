@@ -1,5 +1,7 @@
-service: Api-AutoScaling-dynamodb
+service: Create-Api-AutoScaling-dynamodb
 custom:
+  pythonRequirements:
+    dockerizePip: non-linux
   OPENCV_PROCESS_BUCKET: image-bucket-uploads
   OPENCV_OUTPUT_BUCKET: image-bucket-recognized
 provider:
@@ -31,7 +33,7 @@ functions: # métodos da api
     handler: handler.client_upload
     events:
     - http:
-        path: /client_upload/{file}
+        path: /client_upload/
         method: post
  download_client_images:
      handler: handler.download_client_images
@@ -60,62 +62,5 @@ functions: # métodos da api
           existing: true
 
 resources:
-  Resources:
-   # template de criação do autoscaling group
-    ASGappFaceRecognition:
-      Type: AWS::EC2::LaunchTemplate
-      Properties: 
-        LaunchTemplateName: !Sub ASGappFaceRecognition
-        LaunchTemplateData: 
-          BlockDeviceMappings: 
-            - Ebs:
-                VolumeSize: 22
-                VolumeType: gp2
-                DeleteOnTermination: true
-                Encrypted: true
-              DeviceName: /dev/xvdcz
-          CreditSpecification: 
-            CpuCredits: Unlimited
-          ImageId: ami-02354e95b39ca8dec
-          InstanceType: t2.micro
-          Monitoring: 
-            Enabled: true
-    ASGFaceRecognition:
-      Type: AWS::AutoScaling::AutoScalingGroup
-      Properties:
-        AvailabilityZones: !GetAZs ''
-        AutoScalingGroupName: ASG-apps-FaceRecognition
-        MinSize: "1"
-        MaxSize: "6"
-        DesiredCapacity: "2"
-        HealthCheckGracePeriod: 300
-        LaunchTemplate:
-          LaunchTemplateId: !Ref ASGappFaceRecognition
-          Version: !GetAtt ASGappFaceRecognition.LatestVersionNumber
-        MetricsCollection: 
-          - Granularity: "1Minute"
-            Metrics: 
-              - "GroupMinSize"
-              - "GroupMaxSize"
-        Tags:
-          - Key: Environment
-            Value: Production
-            PropagateAtLaunch: "true"
-          - Key: Purpose
-            Value: WebServerGroup
-            PropagateAtLaunch: "false"
-
-    # cria a tabela de log no dynamodb
-    Logs: 
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Logs
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+  - ${file(resources/create_table.yml)} # create table dynamodb
+  - ${file(resources/instances_ec2.yml)} # create ec2 app servers

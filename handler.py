@@ -6,27 +6,31 @@ import os
 from boto3.s3.transfer import TransferConfig
 from itertools import takewhile, count
 import base64
+import binascii
+
+
 
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
 dynamodb = boto3.resource('dynamodb')
 
 def client_upload(event, context):
-        print(event)
         img_bin = event['body']
         encoded_string = img_bin.encode('utf-8')
         image = base64.b64decode(encoded_string)
         
         bucket = 'image-bucket-uploads'
         #client = event['pathParameters']['client']
-        upload_path = '{}'.format(event['pathParameters']['file'] + ".jpg")
-        response = s3_client.put_object(Key=upload_path,  Bucket=bucket, Body=image)
+        #upload_path = '{}'.format(event['pathParameters']['file'] + ".jpg")
+        response = s3_client.put_object(Key="nome.jpeg",  Bucket=bucket, Body=image)
         
         return {
             "statusCode": 200,
             "headers": {
                 "status": "ok",
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": "*",
+                'content-type': '*/*',
+                'x-amz-acl': 'public-read'
                 },
             "body": json.dumps(response)
                 }
@@ -96,7 +100,7 @@ def put_log_dynamo(event, context):
     json_object = s3_client.get_object(Bucket=bucket,Key=file_name)
     id_bd = str(uuid.uuid4())
     
-    table = dynamodb.Table('Logs')
+    table = dynamodb.Table('client_logs')
     table.put_item(Item={
         'id': id_bd,
         'file_name': file_name,
