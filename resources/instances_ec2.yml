@@ -1,5 +1,29 @@
 Resources:
    # template de criação do autoscaling group
+    InstanceSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+          GroupDescription: Allow http to client host
+          GroupName: faceapp
+          VpcId: vpc-0dec1670
+          SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+          - CidrIp: 0.0.0.0/0
+            FromPort: 22
+            IpProtocol: tcp
+            ToPort: 22
+          SecurityGroupEgress:
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+          - CidrIp: 0.0.0.0/0
+            FromPort: 22
+            IpProtocol: tcp
+            ToPort: 22
     ASGappFaceRecognition:
       Type: AWS::EC2::LaunchTemplate
       Properties: 
@@ -16,8 +40,14 @@ Resources:
             CpuCredits: Unlimited
           ImageId: ami-02354e95b39ca8dec
           InstanceType: t2.micro
+          KeyName: dockerteste
           Monitoring: 
             Enabled: true
+          NetworkInterfaces:
+          - DeviceIndex: 0
+            AssociatePublicIpAddress: true
+            Groups:
+              - !Ref InstanceSecurityGroup
     ASGFaceRecognition:
       Type: AWS::AutoScaling::AutoScalingGroup
       Properties:
@@ -42,12 +72,4 @@ Resources:
           - Key: Purpose
             Value: WebServerGroup
             PropagateAtLaunch: "false"
-    WebSecurityGroup:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: Enable HTTP access via user defined port
-        SecurityGroupIngress:
-        - CidrIp: 0.0.0.0/0
-          FromPort: 80
-          IpProtocol: tcp
-          ToPort: 80
+    

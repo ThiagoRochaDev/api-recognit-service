@@ -7,8 +7,8 @@ from boto3.s3.transfer import TransferConfig
 from itertools import takewhile, count
 import base64
 import binascii
-
-
+import io
+from io import BytesIO
 
 s3_client = boto3.client('s3')
 s3_resource = boto3.resource('s3')
@@ -17,12 +17,14 @@ dynamodb = boto3.resource('dynamodb')
 def client_upload(event, context):
         img_bin = event['body']
         encoded_string = img_bin.encode('utf-8')
-        image = base64.b64decode(encoded_string)
+        image = base64.b64encode(encoded_string)
         
         bucket = 'image-bucket-uploads'
         #client = event['pathParameters']['client']
         #upload_path = '{}'.format(event['pathParameters']['file'] + ".jpg")
-        response = s3_client.put_object(Key="nome.jpeg",  Bucket=bucket, Body=image)
+        
+        response = s3_client.put_object(Key="sss.jpeg",  Bucket=bucket, Body=image)
+        
         
         return {
             "statusCode": 200,
