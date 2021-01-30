@@ -8,8 +8,8 @@ Resources:
           VpcId: vpc-0dec1670
           SecurityGroupIngress:
           - IpProtocol: tcp
-            FromPort: 80
-            ToPort: 80
+            FromPort: 3002
+            ToPort: 3002
             CidrIp: 0.0.0.0/0
           - CidrIp: 0.0.0.0/0
             FromPort: 22
@@ -17,8 +17,8 @@ Resources:
             ToPort: 22
           SecurityGroupEgress:
           - IpProtocol: tcp
-            FromPort: 80
-            ToPort: 80
+            FromPort: 3002
+            ToPort: 3002
             CidrIp: 0.0.0.0/0
           - CidrIp: 0.0.0.0/0
             FromPort: 22
