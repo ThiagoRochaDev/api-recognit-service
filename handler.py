@@ -18,12 +18,11 @@ def client_upload(event, context):
         img_bin = event['body']
         encoded_string = img_bin.encode('utf-8')
         image = base64.b64encode(encoded_string)
-        
         bucket = 'image-bucket-uploads'
         #client = event['pathParameters']['client']
         #upload_path = '{}'.format(event['pathParameters']['file'] + ".jpg")
         
-        response = s3_client.put_object(Key="sss.jpeg",  Bucket=bucket, Body=image)
+        s3_client.put_object(Key="test.jpg",  Bucket=bucket, Body=image)
         
         
         return {
@@ -31,10 +30,10 @@ def client_upload(event, context):
             "headers": {
                 "status": "ok",
                 "Access-Control-Allow-Origin": "*",
-                'content-type': '*/*',
+                'content-type': 'image/*',
                 'x-amz-acl': 'public-read'
                 },
-            "body": json.dumps(response)
+            "body": "Upload successful"
                 }
 
 

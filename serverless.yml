@@ -34,7 +34,7 @@ functions: # métodos da api
     events:
     - http:
         path: /client_upload/
-        method: post
+        method: put
  download_client_images:
      handler: handler.download_client_images
      events:
