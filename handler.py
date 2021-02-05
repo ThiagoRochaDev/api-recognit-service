@@ -52,8 +52,9 @@ def download_client_images(event, context):
                                     'Key':  files.key,
                                 },                                  
                                 ExpiresIn=3600)
-        file_array.append(url)
-        file_array.append(files.key)
+        file_array.append({"url": url,
+                        "name": files.key
+             })
     return {
         "statusCode": 200,
         "headers": {
